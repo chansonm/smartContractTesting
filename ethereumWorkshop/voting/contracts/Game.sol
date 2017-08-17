@@ -6,37 +6,29 @@ contract Game {
   The key of the mapping is candidate name stored as type bytes32 and value is
   an unsigned integer to store the vote count
   */
-  mapping (bytes32 => uint8) public votesReceived;
-  bytes32[] public candidateList;
+  mapping (bytes32 => uint8) public popularityScore;
+  bytes32[] public gameList;
+
   uint public blockNumber;
   bytes32 public blockHashNow;
   uint random_number;
-  uint reward;
-  uint reward2;
 
   // Constructor
-  function Game(bytes32[] candidateNames) payable {
-    candidateList = candidateNames;
+  function Game(bytes32[] games) payable {
+    gameList = games;
   }
-
-
 
 // This is the syntax for a default function that will be executed if ether is sent to the smart contract.
 // If the smart contract should be able to receive ether, this function is mandatory. If it does not exist
 // transactions containing ether will be sent back.
   function() payable {}
 
-//  function playGame() payable returns (bool) {
-//    reward = rouletteResult()*msg.value;
-//    msg.sender.send(reward);
-//    return true;
-//  }
-
+  //  Here we define our Game Functions: They accept sent ether and play a corresponding game with it
   function betOdd() payable returns (bool) {
     uint result = rouletteResult();
-    if (result%2 == 1) {
-      reward = 2*msg.value;
-      msg.sender.send(reward);
+    voteForGame('Odd');
+    if (result != 0 && result%2 == 1) {
+      msg.sender.transfer(2*msg.value);
       return true;
     } else {
       return false;
@@ -44,38 +36,45 @@ contract Game {
   }
 
   function betEven() payable returns (bool) {
-    uint result2 = rouletteResult();
-//    if (result2%2 == 0) {
-////      reward2 = 2*msg.value;
-////      msg.sender.send(reward2);
-//      return true;
-//    } else {
-//      return false;
-//    }
-//    reward2 = 2*msg.value;
-//    msg.sender.send(reward2);
-    return true;
+    uint result = rouletteResult();
+    voteForGame('Even');
+    if (result != 0 && result%2 == 0) {
+      msg.sender.transfer(2*msg.value);
+      return true;
+    } else {
+      return false;
+    }
   }
 
-//  function betEven() payable returns (bool) {
-//    uint result2 = rouletteResult();
-//    if (result2%2 == 0) {
-//      reward2 = 2*msg.value;
-//      msg.sender.send(reward2);
-//      return true;
-//    } else {
-//      return false;
-//    }
-//  }
-//
-
+  //  Helper Functions
   function rouletteResult() returns (uint) {
-    blockNumber = block.number;
-    blockHashNow = block.blockhash(blockNumber);
-    random_number = uint(block.blockhash(block.number-1))%32;
-    return random_number;
+    return uint(block.blockhash(block.number-1))%32;
   }
 
-// Interaction via truffle console:
-// Game.deployed().then(function(contractInstance) {contractInstance.playGame.then(function(v) {console.log(v)})})
+  // This function returns the total votes a game has received so far
+  function totalVotesFor(bytes32 game) returns (uint8) {
+    if (validGame(game) == false) revert();
+    return popularityScore[game];
+  }
+
+  // This function increments the vote count for the specified game. This
+  // is equivalent to casting a vote
+  function voteForGame(bytes32 game) {
+    if (validGame(game) == false) revert();
+    popularityScore[game] += 1;
+  }
+
+  function validGame(bytes32 game) returns (bool) {
+    for(uint i = 0; i < gameList.length; i++) {
+      if (gameList[i] == game) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
+
+//Game.deployed().then(function(contractInstance) {contractInstance.voteForGame('Odd').then(function(v) {console.log(v)})})
+Game.deployed().then(function(contractInstance) {contractInstance.rouletteResult().then(function(v) {console.log(v)})})
+//Game.deployed().then(function(contractInstance) {contractInstance.voteForGame.call('Odd').then(function(v) {console.log(v)})})
+//Game.deployed().then(function(contractInstance) {contractInstance.totalVotesFor.call('Odd').then(function(v) {console.log(v)})})
