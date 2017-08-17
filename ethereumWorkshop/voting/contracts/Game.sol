@@ -45,13 +45,16 @@ contract Game {
 
   function betEven() payable returns (bool) {
     uint result2 = rouletteResult();
-    if (result2%2 == 0) {
-//      reward2 = 2*msg.value;
-//      msg.sender.send(reward2);
-      return true;
-    } else {
-      return false;
-    }
+//    if (result2%2 == 0) {
+////      reward2 = 2*msg.value;
+////      msg.sender.send(reward2);
+//      return true;
+//    } else {
+//      return false;
+//    }
+//    reward2 = 2*msg.value;
+//    msg.sender.send(reward2);
+    return true;
   }
 
 //  function betEven() payable returns (bool) {
@@ -65,16 +68,6 @@ contract Game {
 //    }
 //  }
 //
-//  function betEven() payable returns (bool) {
-//    uint result2 = rouletteResult();
-//    uint reward2 = 2*msg.value;
-//    if (result2%2 == 0) {
-//      msg.sender.send(reward2);
-//      return true;
-//    } else {
-//      return false;
-//    }
-//  }
 
   function rouletteResult() returns (uint) {
     blockNumber = block.number;

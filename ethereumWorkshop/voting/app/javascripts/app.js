@@ -26,8 +26,9 @@ let candidates = {"Rama": "candidate-1", "Nick": "candidate-2", "Jose": "candida
 
 window.voteForCandidate = function(candidate) {
   let candidateName = $("#candidate").val();
+  let betAmount = $("#betAmount").val();
   try {
-    $("#msg").html("The ball is rolling. Wait for the blockchain which should be back directly.")
+    $("#msg").html("You placed a bet of " + betAmount + " on " + candidateName + "! The ball is rolling. Wait for the blockchain which should be coming directly.");
     $("#candidate").val("");
 
     /* Voting.deployed() returns an instance of the contract. Every call
@@ -35,7 +36,7 @@ window.voteForCandidate = function(candidate) {
      * everywhere we have a transaction call
      */
     Game.deployed().then(function(contractInstance) {
-      contractInstance.playGame({gas: 140000, from: web3.eth.accounts[1]});
+      contractInstance.betOdd({gas: 140000, value: betAmount, from: web3.eth.accounts[1]});
     });
   } catch (err) {
     console.log(err);
